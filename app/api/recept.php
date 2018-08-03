@@ -9,6 +9,33 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
+$app->get('/api/randomRecept', function (ServerRequestInterface $request, ResponseInterface $response) {
+
+    $client = new MongoDB\Client;
+    $db = $client->recepti;
+    $recepti = $db->recepti;
+
+    $randomRecept = [];
+    //$mongoQuery = array('$sample' => array('size'=> 1));
+    $result = $recepti->aggregate(array(
+        array('$sample' =>  array(
+            'size' => 1
+        ))
+    ));
+
+    foreach ($result as $recept) {
+        array_push($randomRecept, $recept);
+    }
+
+    $res = $response->withJSON($randomRecept,200,JSON_UNESCAPED_UNICODE);
+
+    return $res;
+});
+
+
+
+
+
 $app->post('/api/recepti', function (ServerRequestInterface $request, ResponseInterface $response) {
 
     //pridobi sestavine iz request bodyja
